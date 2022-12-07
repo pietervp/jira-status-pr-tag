@@ -70,11 +70,17 @@ async function run(): Promise<void> {
         core.info(`status: ${status}`)
         core.info(`statusClean: ${statusClean}`)
 
+        core.info('Current labels: ');
+        core.info(JSON.stringify(pr.labels));
+
         let newLabels = pr.labels
           .map(f => f.name)
           .filter(function (l) {
             !l.startsWith('jira:')
           })
+
+        core.info('Copied labels: ');
+        core.info(JSON.stringify(newLabels));
 
         newLabels.push(`jira:${statusClean}`)
 
@@ -83,6 +89,9 @@ async function run(): Promise<void> {
             ticket.fields.labels.map((l: string) => `jira::label:${l}`)
           )
         }
+
+        core.info('New labels: ');
+        core.info(JSON.stringify(newLabels));
 
         // Add the labels to the pull request
         await octokit.request(
