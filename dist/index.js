@@ -75,6 +75,8 @@ function run() {
                     const ticketKey = matches[0];
                     core.info(`ticketKey: ${ticketKey}`);
                     const ticket = yield jiraApi.getIssue(ticketKey);
+                    core.info('after jira request');
+                    core.info(JSON.stringify(ticket));
                     if (!ticket) {
                         core.info('Could not find any jira tickets in PR');
                         continue;

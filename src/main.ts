@@ -50,6 +50,9 @@ async function run(): Promise<void> {
         
         const ticket = await jiraApi.getIssue(ticketKey)
 
+        core.info('after jira request')
+        core.info(JSON.stringify(ticket))
+
         if (!ticket) {
           core.info('Could not find any jira tickets in PR')
           continue
