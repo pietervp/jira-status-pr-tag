@@ -67,12 +67,15 @@ function run() {
                     const searchString = `${pr.title}${pr.body}`;
                     const regexSource = core.getInput('ticket-regex');
                     const regex = new RegExp(regexSource);
+                    core.info(regex.source);
                     const matches = regex.exec(searchString);
+                    core.info('checking matches');
                     if (!matches || (matches === null || matches === void 0 ? void 0 : matches.length) === 0) {
                         core.info('Could not find any jira tickets in PR');
                         continue;
                     }
                     const ticketKey = matches[0];
+                    core.info(`ticketKey: ${ticketKey}`);
                     const ticket = yield jiraApi.getIssue(ticketKey);
                     if (!ticket) {
                         core.info('Could not find any jira tickets in PR');
@@ -80,13 +83,13 @@ function run() {
                     }
                     const status = (_a = ticket.status) !== null && _a !== void 0 ? _a : (_b = ticket.fields) === null || _b === void 0 ? void 0 : _b.status;
                     if (!status) {
-                        core.debug(JSON.stringify(ticket));
+                        core.info(JSON.stringify(ticket));
                         core.info('Could not retrieve ticket status');
                         continue;
                     }
                     const statusClean = status.toLowerCase().replace(/\s/g, '_');
-                    core.debug(`status: ${status}`);
-                    core.debug(`statusClean: ${statusClean}`);
+                    core.info(`status: ${status}`);
+                    core.info(`statusClean: ${statusClean}`);
                     const newLabels = pr.labels
                         .map(f => f.name)
                         .filter(function (l) {
@@ -102,7 +105,7 @@ function run() {
                     });
                 }
                 catch (error) {
-                    core.info(`Error parsing ${pr.title} => ${error}`);
+                    core.info(`Error parsing ${pr.title} => ${JSON.stringify(error)}`);
                 }
             }
         }

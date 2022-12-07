@@ -36,7 +36,10 @@ async function run(): Promise<void> {
         const regexSource = core.getInput('ticket-regex')
 
         const regex = new RegExp(regexSource)
+        core.info(regex.source);
         const matches = regex.exec(searchString)
+        
+        core.info('checking matches')
 
         if (!matches || matches?.length === 0) {
           core.info('Could not find any jira tickets in PR')
@@ -44,6 +47,8 @@ async function run(): Promise<void> {
         }
 
         const ticketKey = matches[0]
+
+        core.info(`ticketKey: ${ticketKey}`)
 
         const ticket = await jiraApi.getIssue(ticketKey)
 
@@ -55,14 +60,14 @@ async function run(): Promise<void> {
         const status: string | undefined = ticket.status ?? ticket.fields?.status
 
         if (!status) {
-          core.debug(JSON.stringify(ticket))
+          core.info(JSON.stringify(ticket))
           core.info('Could not retrieve ticket status')
           continue
         }
 
         const statusClean = status.toLowerCase().replace(/\s/g, '_')
-        core.debug(`status: ${status}`)
-        core.debug(`statusClean: ${statusClean}`)
+        core.info(`status: ${status}`)
+        core.info(`statusClean: ${statusClean}`)
 
         const newLabels = pr.labels
           .map(f => f.name)
@@ -81,7 +86,7 @@ async function run(): Promise<void> {
         })
 
       } catch (error) {
-          core.info(`Error parsing ${pr.title} => ${error}`)
+          core.info(`Error parsing ${pr.title} => ${JSON.stringify(error)}`)
       }
     }
   } catch (error) {
