@@ -12,6 +12,7 @@ jobs:
         uses: actions/checkout@v3
       - uses: ./
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           ticket-regex: '/EDT-\d+/'
           jira-host: https://support.chili-publish.com/
           jira-username:  ${{ secrets.JIRA_USER }}
