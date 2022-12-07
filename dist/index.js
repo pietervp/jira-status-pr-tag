@@ -60,13 +60,10 @@ function run() {
             });
             for (const pr of response.data) {
                 try {
-                    core.info(`processing: ${pr.title}`);
                     const searchString = `${pr.title}${pr.body}`;
                     const regexSource = core.getInput('ticket-regex');
                     const regex = new RegExp(regexSource);
-                    core.info(regex.source);
                     const matches = regex.exec(searchString);
-                    core.info('checking matches');
                     if (!matches || (matches === null || matches === void 0 ? void 0 : matches.length) === 0) {
                         core.info('Could not find any jira tickets in PR');
                         continue;
@@ -74,20 +71,18 @@ function run() {
                     const ticketKey = matches[0];
                     core.info(`ticketKey: ${ticketKey}`);
                     const ticket = yield jiraApi.getIssue(ticketKey);
-                    core.info('after jira request');
-                    if (!ticket || !(ticket.fields)) {
+                    if (!ticket || !ticket.fields) {
                         core.info('Could not find any jira tickets in PR, or no fields property');
                         continue;
                     }
-                    if (!(ticket.fields.status)) {
+                    if (!ticket.fields.status) {
                         core.info('No status included in response');
                         continue;
                     }
                     const status = ticket.fields.status.name;
-                    core.info('after status retrieve');
                     core.info(status);
                     if (!status) {
-                        core.info(JSON.stringify(ticket));
+                        core.debug(JSON.stringify(ticket));
                         core.info('Could not retrieve ticket status');
                         continue;
                     }
@@ -101,7 +96,7 @@ function run() {
                     });
                     newLabels.push(`jira:${statusClean}`);
                     if (ticket.fields.labels) {
-                        newLabels = newLabels.concat(ticket.fields.labels.map((l) => `jira:label:${l}`));
+                        newLabels = newLabels.concat(ticket.fields.labels.map((l) => `jira::label:${l}`));
                     }
                     // Add the labels to the pull request
                     yield octokit.request('PUT /repos/{owner}/{repo}/issues/{issue_number}/labels', {
