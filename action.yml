@@ -1,11 +1,35 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: "Jira Status to PR Label Sync"
+description: "Sync PR labels with Jira tickets"
+author: "Pieter Van Parys"
 inputs:
-  milliseconds: # change this
+  github-token:
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    default: ${{ secrets.GITHUB_TOKEN }}
+    description: 'Token to perform GitHub queries'
+  ticket-regex: # change this
+    required: true
+    description: "To link a PR with a jira ticket, PR title and body will be scanned using this regex"
+  jira-host:
+    required: true
+    description: ""
+  jira-username:
+    required: true
+    description: ''
+  jira-password:
+    required: true
+    description: ''
+  jira-protocol:
+    required: false
+    default: "https"
+    description: ''
+  jira-apiVersion:
+    required: false
+    default: "2"
+    description: ''
+  jira-strictSSL:
+    required: false
+    default: "true"
+    description: ''
 runs:
-  using: 'node16'
-  main: 'dist/index.js'
+  using: "node16"
+  main: "dist/index.js"

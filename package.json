@@ -1,8 +1,8 @@
 {
-  "name": "typescript-action",
-  "version": "0.0.0",
+  "name": "jira-status-pr-label-sync",
+  "version": "0.0.1",
   "private": true,
-  "description": "TypeScript template action",
+  "description": "Syncs all repo PR labels with their corresponding label in JIRA",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
@@ -22,12 +22,15 @@
     "node",
     "setup"
   ],
-  "author": "",
+  "author": "Pieter Van Parys",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.10.0"
+    "@actions/core": "^1.10.0",
+    "@actions/github": "^5.1.1",
+    "jira-client": "^8.2.2"
   },
   "devDependencies": {
+    "@types/jira-client": "^7.1.5",
     "@types/node": "^18.11.0",
     "@typescript-eslint/parser": "^4.33.0",
     "@vercel/ncc": "^0.31.1",
