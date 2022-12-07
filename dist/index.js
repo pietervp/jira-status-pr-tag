@@ -89,15 +89,9 @@ function run() {
                     const statusClean = status.toLowerCase().replace(/\s/g, '_');
                     core.info(`status: ${status}`);
                     core.info(`statusClean: ${statusClean}`);
-                    core.info('Current labels: ');
-                    core.info(JSON.stringify(pr.labels));
                     let newLabels = pr.labels
                         .map(f => f.name)
-                        .filter(function (l) {
-                        !l.startsWith('jira:');
-                    });
-                    core.info('Copied labels: ');
-                    core.info(JSON.stringify(newLabels));
+                        .filter((l) => !l.startsWith('jira:'));
                     newLabels.push(`jira:${statusClean}`);
                     if (ticket.fields.labels) {
                         newLabels = newLabels.concat(ticket.fields.labels.map((l) => `jira::label:${l}`));

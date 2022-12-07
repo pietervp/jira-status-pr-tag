@@ -1,6 +1,6 @@
 {
   "name": "jira-status-pr-label-sync",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "description": "Syncs all repo PR labels with their corresponding label in JIRA",
   "main": "lib/main.js",
