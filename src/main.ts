@@ -22,9 +22,7 @@ async function run(): Promise<void> {
       host: core.getInput('jira-host'),
       protocol: core.getInput('jira-protocol'),
       username: core.getInput('jira-username'),
-      password: core.getInput('jira-password'),
-      apiVersion: core.getInput('jira-apiVersion'),
-      strictSSL: core.getInput('jira-strictSSL') === 'true'
+      password: core.getInput('jira-password')
     })
 
     for (const pr of response.data) {
@@ -49,7 +47,7 @@ async function run(): Promise<void> {
         const ticketKey = matches[0]
 
         core.info(`ticketKey: ${ticketKey}`)
-
+        
         const ticket = await jiraApi.getIssue(ticketKey)
 
         if (!ticket) {

@@ -57,9 +57,7 @@ function run() {
                 host: core.getInput('jira-host'),
                 protocol: core.getInput('jira-protocol'),
                 username: core.getInput('jira-username'),
-                password: core.getInput('jira-password'),
-                apiVersion: core.getInput('jira-apiVersion'),
-                strictSSL: core.getInput('jira-strictSSL') === 'true'
+                password: core.getInput('jira-password')
             });
             for (const pr of response.data) {
                 try {
