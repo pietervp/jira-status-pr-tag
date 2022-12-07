@@ -49,6 +49,7 @@ function run() {
                 repo: github.context.repo.repo,
                 state: 'open'
             });
+            console.log(JSON.stringify(response));
             if (response.status !== 200) {
                 core.info('Could not retrieve PR details');
                 return;
@@ -71,6 +72,7 @@ function run() {
                     return;
                 }
                 const ticketKey = matches[0];
+                console.log(`Found ticket '${ticketKey}'`);
                 const ticket = yield jiraApi.getIssue(ticketKey);
                 if (!ticket) {
                     core.info('Could not find any jira tickets in PR');

@@ -13,6 +13,8 @@ async function run(): Promise<void> {
       state: 'open'
     })
 
+    console.log(JSON.stringify(response))
+
     if (response.status !== 200) {
       core.info('Could not retrieve PR details')
       return
@@ -40,6 +42,8 @@ async function run(): Promise<void> {
       }
 
       const ticketKey = matches[0]
+
+      console.log(`Found ticket '${ticketKey}'`)
 
       const ticket = await jiraApi.getIssue(ticketKey)
 
