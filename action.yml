@@ -3,8 +3,7 @@ description: "Sync PR labels with Jira tickets"
 author: "Pieter Van Parys"
 inputs:
   github-token:
-    required: true
-    default: ${{ secrets.GITHUB_TOKEN }}
+    required: true    
     description: 'Token to perform GitHub queries'
   ticket-regex: # change this
     required: true
