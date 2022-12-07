@@ -51,14 +51,20 @@ async function run(): Promise<void> {
         const ticket = await jiraApi.getIssue(ticketKey)
 
         core.info('after jira request')
-        core.info(JSON.stringify(ticket))
 
-        if (!ticket) {
-          core.info('Could not find any jira tickets in PR')
+        if (!ticket || !(ticket.fields)) {
+          core.info('Could not find any jira tickets in PR, or no fields property')
+          continue
+        }
+        if (!(ticket.fields.status)) {
+          core.info('No status included in response')
           continue
         }
 
-        const status: string | undefined = ticket.status ?? ticket.fields?.status
+        const status: string = ticket.fields.status.name;
+
+        core.info('after status retrieve');
+        core.info(status)
 
         if (!status) {
           core.info(JSON.stringify(ticket))
@@ -77,6 +83,10 @@ async function run(): Promise<void> {
           })
 
         newLabels.push(`jira:${statusClean}`)
+
+        if (ticket.fields.labels){
+          newLabels.concat(ticket.fields.labels.map((l:string) => `jira:label:${l}`))
+        }
 
         // Add the labels to the pull request
         await octokit.rest.issues.addLabels({

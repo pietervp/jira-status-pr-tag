@@ -39,7 +39,6 @@ const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 const jira = __importStar(__nccwpck_require__(6411));
 function run() {
-    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const token = core.getInput('github-token');
@@ -76,12 +75,17 @@ function run() {
                     core.info(`ticketKey: ${ticketKey}`);
                     const ticket = yield jiraApi.getIssue(ticketKey);
                     core.info('after jira request');
-                    core.info(JSON.stringify(ticket));
-                    if (!ticket) {
-                        core.info('Could not find any jira tickets in PR');
+                    if (!ticket || !(ticket.fields)) {
+                        core.info('Could not find any jira tickets in PR, or no fields property');
                         continue;
                     }
-                    const status = (_a = ticket.status) !== null && _a !== void 0 ? _a : (_b = ticket.fields) === null || _b === void 0 ? void 0 : _b.status;
+                    if (!(ticket.fields.status)) {
+                        core.info('No status included in response');
+                        continue;
+                    }
+                    const status = ticket.fields.status.name;
+                    core.info('after status retrieve');
+                    core.info(status);
                     if (!status) {
                         core.info(JSON.stringify(ticket));
                         core.info('Could not retrieve ticket status');
@@ -96,6 +100,9 @@ function run() {
                         !l.startsWith('jira:');
                     });
                     newLabels.push(`jira:${statusClean}`);
+                    if (ticket.fields.labels) {
+                        newLabels.concat(ticket.fields.labels.map((l) => `jira:label:${l}`));
+                    }
                     // Add the labels to the pull request
                     yield octokit.rest.issues.addLabels({
                         owner: github.context.repo.owner,
