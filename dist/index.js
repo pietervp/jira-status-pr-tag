@@ -94,17 +94,17 @@ function run() {
                     const statusClean = status.toLowerCase().replace(/\s/g, '_');
                     core.info(`status: ${status}`);
                     core.info(`statusClean: ${statusClean}`);
-                    const newLabels = pr.labels
+                    let newLabels = pr.labels
                         .map(f => f.name)
                         .filter(function (l) {
                         !l.startsWith('jira:');
                     });
                     newLabels.push(`jira:${statusClean}`);
                     if (ticket.fields.labels) {
-                        newLabels.concat(ticket.fields.labels.map((l) => `jira:label:${l}`));
+                        newLabels = newLabels.concat(ticket.fields.labels.map((l) => `jira:label:${l}`));
                     }
                     // Add the labels to the pull request
-                    yield octokit.rest.issues.addLabels({
+                    yield octokit.request('PUT /repos/{owner}/{repo}/issues/{issue_number}/labels', {
                         owner: github.context.repo.owner,
                         repo: github.context.repo.repo,
                         issue_number: pr.number,

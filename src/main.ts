@@ -75,8 +75,8 @@ async function run(): Promise<void> {
         const statusClean = status.toLowerCase().replace(/\s/g, '_')
         core.info(`status: ${status}`)
         core.info(`statusClean: ${statusClean}`)
-
-        const newLabels = pr.labels
+        
+        let newLabels = pr.labels
           .map(f => f.name)
           .filter(function (l) {
             !l.startsWith('jira:')
@@ -85,11 +85,11 @@ async function run(): Promise<void> {
         newLabels.push(`jira:${statusClean}`)
 
         if (ticket.fields.labels){
-          newLabels.concat(ticket.fields.labels.map((l:string) => `jira:label:${l}`))
+          newLabels = newLabels.concat(ticket.fields.labels.map((l:string) => `jira:label:${l}`))
         }
 
         // Add the labels to the pull request
-        await octokit.rest.issues.addLabels({
+        await octokit.request('PUT /repos/{owner}/{repo}/issues/{issue_number}/labels', {
           owner: github.context.repo.owner,
           repo: github.context.repo.repo,
           issue_number: pr.number,
