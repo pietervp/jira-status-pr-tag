@@ -64,7 +64,7 @@ async function run(): Promise<void> {
     })
 
     // log the ticket statuses
-    core.info(`ticketStatuses: ${JSON.stringify(ticketStatuses)}`)
+    core.debug(`ticketStatuses: ${JSON.stringify(ticketStatuses)}`)
 
     // join the ticket statuses with the tickets from the PRs on the ticket key
     const ticketStatusesWithPrs = tickets.map(ticket => {
@@ -79,7 +79,9 @@ async function run(): Promise<void> {
     })
 
     // log the ticket statuses with PRs
-    core.info(`ticketStatusesWithPrs: ${JSON.stringify(ticketStatusesWithPrs)}`)
+    core.debug(
+      `ticketStatusesWithPrs: ${JSON.stringify(ticketStatusesWithPrs)}`
+    )
 
     // map ticketstatuseswihprs to a list of labels to add to the PR
     const labelsToAdd = ticketStatusesWithPrs.map(ticket => {
@@ -103,7 +105,7 @@ async function run(): Promise<void> {
     })
 
     // log the labels to add
-    core.info(`labelsToAdd: ${JSON.stringify(labelsToAdd)}`)
+    core.debug(`labelsToAdd: ${JSON.stringify(labelsToAdd)}`)
 
     // now filter the list to only contain items where newlabels is not equal to oldlabels
     const labelsToAddFiltered = labelsToAdd.filter(
@@ -112,7 +114,7 @@ async function run(): Promise<void> {
     )
 
     // log the labels to add
-    core.info(`labelsToAddFiltered: ${JSON.stringify(labelsToAddFiltered)}`)
+    core.debug(`labelsToAddFiltered: ${JSON.stringify(labelsToAddFiltered)}`)
 
     // for all results execute the github api to add the labels to the PR
     for (const label of labelsToAddFiltered) {
@@ -127,7 +129,7 @@ async function run(): Promise<void> {
           labels: label.newLabels
         })
       } catch (error) {
-        core.info(`Error adding labels to PR ${label.pull}`)
+        core.warning(`Error adding labels to PR ${label.pull}`)
         core.info(`Error: ${error}`)
       }
     }
