@@ -63,6 +63,7 @@ function run() {
             });
             for (const pr of response.data) {
                 try {
+                    core.info(`processing: ${pr.title}`);
                     const searchString = `${pr.title}${pr.body}`;
                     const regexSource = core.getInput('ticket-regex');
                     const regex = new RegExp(regexSource);

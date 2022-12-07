@@ -30,6 +30,8 @@ async function run(): Promise<void> {
     for (const pr of response.data) {
       try {
 
+        core.info(`processing: ${pr.title}`)
+
         const searchString = `${pr.title}${pr.body}`
         const regexSource = core.getInput('ticket-regex')
 
