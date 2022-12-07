@@ -76,10 +76,11 @@ function run() {
             // use the jira api to create a query to list all tickets in the list of tickets
             const jql = `key in (${tickets
                 .map((v) => v.ticket)
-                .join(',')})&fields=status,labels`;
+                .join(',')})`;
+            // log the jql
+            core.info(`jql: ${jql}`);
             // execute the query
             const jiraTickets = yield jiraApi.searchJira(jql);
-            core.info(`jql: ${jql}`);
             core.info(`jiraTickets: ${JSON.stringify(jiraTickets)}`);
             // extract the ticket status and labels from the response
             // eslint-disable-next-line @typescript-eslint/no-explicit-any

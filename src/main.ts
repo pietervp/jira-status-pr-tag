@@ -45,12 +45,14 @@ async function run(): Promise<void> {
     // use the jira api to create a query to list all tickets in the list of tickets
     const jql = `key in (${tickets
       .map((v: {ticket: string | undefined}) => v.ticket)
-      .join(',')})&fields=status,labels`
+      .join(',')})`
+
+    // log the jql
+    core.info(`jql: ${jql}`)
 
     // execute the query
     const jiraTickets = await jiraApi.searchJira(jql)
 
-    core.info(`jql: ${jql}`)
     core.info(`jiraTickets: ${JSON.stringify(jiraTickets)}`)
 
     // extract the ticket status and labels from the response
