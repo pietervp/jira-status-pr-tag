@@ -13,7 +13,7 @@ jobs:
       - uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          ticket-regex: EDT-\d+
+          ticket-regex: 'EDT-\d+'
           jira-host: https://support.chili-publish.com/
           jira-username:  ${{ secrets.JIRA_USER }}
           jira-password:  ${{ secrets.JIRA_PASSWD }}
