@@ -49,7 +49,6 @@ function run() {
                 repo: github.context.repo.repo,
                 state: 'open'
             });
-            console.log(JSON.stringify(response));
             if (response.status !== 200) {
                 core.info('Could not retrieve PR details');
                 return;
@@ -63,43 +62,47 @@ function run() {
                 strictSSL: core.getInput('jira-strictSSL') === 'true'
             });
             for (const pr of response.data) {
-                const searchString = `${pr.title}${pr.body}`;
-                const regexSource = core.getInput('ticket-regex');
-                const regex = new RegExp(regexSource);
-                const matches = regex.exec(searchString);
-                if (!matches || (matches === null || matches === void 0 ? void 0 : matches.length) === 0) {
-                    core.info('Could not find any jira tickets in PR');
-                    return;
+                try {
+                    const searchString = `${pr.title}${pr.body}`;
+                    const regexSource = core.getInput('ticket-regex');
+                    const regex = new RegExp(regexSource);
+                    const matches = regex.exec(searchString);
+                    if (!matches || (matches === null || matches === void 0 ? void 0 : matches.length) === 0) {
+                        core.info('Could not find any jira tickets in PR');
+                        continue;
+                    }
+                    const ticketKey = matches[0];
+                    const ticket = yield jiraApi.getIssue(ticketKey);
+                    if (!ticket) {
+                        core.info('Could not find any jira tickets in PR');
+                        continue;
+                    }
+                    const status = (_a = ticket.status) !== null && _a !== void 0 ? _a : (_b = ticket.fields) === null || _b === void 0 ? void 0 : _b.status;
+                    if (!status) {
+                        core.debug(JSON.stringify(ticket));
+                        core.info('Could not retrieve ticket status');
+                        continue;
+                    }
+                    const statusClean = status.toLowerCase().replace(/\s/g, '_');
+                    core.debug(`status: ${status}`);
+                    core.debug(`statusClean: ${statusClean}`);
+                    const newLabels = pr.labels
+                        .map(f => f.name)
+                        .filter(function (l) {
+                        !l.startsWith('jira:');
+                    });
+                    newLabels.push(`jira:${statusClean}`);
+                    // Add the labels to the pull request
+                    yield octokit.rest.issues.addLabels({
+                        owner: github.context.repo.owner,
+                        repo: github.context.repo.repo,
+                        issue_number: pr.number,
+                        labels: newLabels
+                    });
                 }
-                const ticketKey = matches[0];
-                console.log(`Found ticket '${ticketKey}'`);
-                const ticket = yield jiraApi.getIssue(ticketKey);
-                if (!ticket) {
-                    core.info('Could not find any jira tickets in PR');
-                    return;
+                catch (error) {
+                    core.info(`Error parsing ${pr.title} => ${error}`);
                 }
-                const status = (_a = ticket.status) !== null && _a !== void 0 ? _a : (_b = ticket.fields) === null || _b === void 0 ? void 0 : _b.status;
-                if (!status) {
-                    core.debug(JSON.stringify(ticket));
-                    core.info('Could not retrieve ticket status');
-                    return;
-                }
-                const statusClean = status.toLowerCase().replace(/\s/g, '_');
-                core.debug(`status: ${status}`);
-                core.debug(`statusClean: ${statusClean}`);
-                const newLabels = pr.labels
-                    .map(f => f.name)
-                    .filter(function (l) {
-                    !l.startsWith('jira:');
-                });
-                newLabels.push(`jira:${statusClean}`);
-                // Add the labels to the pull request
-                yield octokit.rest.issues.addLabels({
-                    owner: github.context.repo.owner,
-                    repo: github.context.repo.repo,
-                    issue_number: pr.number,
-                    labels: newLabels
-                });
             }
         }
         catch (error) {
