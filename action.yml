@@ -17,6 +17,10 @@ inputs:
   jira-password:
     required: true
     description: ''
+  label-prefix:
+    required: true
+    default: jira
+    description: Prefix used when adding labels to the PR.
   jira-protocol:
     required: false
     default: "https"
