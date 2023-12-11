@@ -46,6 +46,11 @@ async function run(): Promise<void> {
     // log the tickets
     core.info(`tickets: ${JSON.stringify(pullsContainingTicket)}`)
 
+    if (pullsContainingTicket.length === 0) {
+      core.info('No tickets found in PRs, skipping jql')
+      return
+    }
+
     // use the jira api to create a query to list all tickets in the list of tickets
     const jql = `key in (${pullsContainingTicket
       .map((v: {ticket: string | undefined}) => v.ticket)
