@@ -34,7 +34,7 @@ async function searchJiraTickets(
       Accept: 'application/json'
     },
     body: JSON.stringify({
-      query: jql,
+      jql: jql,
       maxResults,
       fields: ['status', 'labels']
     })
