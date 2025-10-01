@@ -1,6 +1,56 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import * as jira from 'jira-client'
+
+type JiraIssue = {
+  key: string
+  fields: {
+    status: {
+      name: string
+    }
+    labels: string[]
+  }
+}
+
+type JiraSearchResponse = {
+  issues: JiraIssue[]
+}
+
+async function searchJiraTickets(
+  jql: string,
+  maxResults: number
+): Promise<JiraSearchResponse> {
+  const protocol = core.getInput('jira-protocol')
+  const host = core.getInput('jira-host')
+  const username = core.getInput('jira-username')
+  const password = core.getInput('jira-password')
+
+  const response = await fetch(`${protocol}://${host}/rest/api/3/search/jql`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
+        'base64'
+      )}`,
+      'Content-Type': 'application/json',
+      Accept: 'application/json'
+    },
+    body: JSON.stringify({
+      query: jql,
+      maxResults,
+      fields: ['status', 'labels']
+    })
+  })
+
+  if (!response.ok) {
+    const message = await response.text()
+    throw new Error(
+      `Failed to query Jira: ${response.status} ${response.statusText}${
+        message ? ` - ${message}` : ''
+      }`
+    )
+  }
+
+  return (await response.json()) as JiraSearchResponse
+}
 
 /**
  * The main entry point for the action. This function is called when the action is run.
@@ -21,13 +71,6 @@ async function run(): Promise<void> {
       core.info('Could not retrieve PR details')
       return
     }
-
-    const jiraApi = new jira.default({
-      host: core.getInput('jira-host'),
-      protocol: core.getInput('jira-protocol'),
-      username: core.getInput('jira-username'),
-      password: core.getInput('jira-password')
-    })
 
     const regexSource = core.getInput('ticket-regex')
     const regex = new RegExp(regexSource)
@@ -60,7 +103,10 @@ async function run(): Promise<void> {
     core.info(`jql: ${jql}`)
 
     // execute the query
-    const jiraTickets = await jiraApi.searchJira(jql)
+    const jiraTickets = await searchJiraTickets(
+      jql,
+      pullsContainingTicket.length
+    )
 
     // extract the ticket status and labels from the response
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
